@@ -5,30 +5,65 @@ local mouse = love.mouse
 
 function Shape:initialize()
     self.vertices = {}
+    self.angles = {}
+    self.centre = vector(0,0)
+    self.bounds = {pos=vector(0,0),size=vector(0,0)}
     self.vertexCount = 0
     self.triangles = {}
     self.complete = false
-    self.maxVertices = 8
 end
 
 function Shape:addVertex(vx,vy)
-    vx=vx or 1
-    vy=vy or 1
-    if not self.complete then
-        table.insert(self.vertices,vx)
-        table.insert(self.vertices,vy)
-        self.vertexCount=self.vertexCount+1
+    local vertex = {pos=vector(vx,vy),angle=0}
+    table.insert(self.vertices,vertex)
+    self:calculateCentre()
+    self:sortVertices()
+    self:buildTriangles()
+end
 
-        if self.vertexCount >= self.maxVertices then
-            self.complete = true
+function Shape:calculateCentre(vertices)
+    --highX,lowX,highY,lowY
+    lx = math.huge
+    ly = math.huge
+    hx = 0
+    hy = 0
+
+    for i,v in ipairs(self.vertices) do
+        if v.pos.x < lx then lx = v.pos.x end
+        if v.pos.x > hx then hx = v.pos.x end
+        if v.pos.y < ly then ly = v.pos.y end
+        if v.pos.y > hy then hy = v.pos.y end
+    end
+    local cx = math.floor((lx+hx+1)/2)
+    local cy = math.floor((ly+hy+1)/2)
+
+    self.centre = vector(cx,cy)
+    self.bounds.pos = vector(lx,ly)
+    self.bounds.size = vector(hx-lx,hy-ly)
+end
+
+
+function Shape:sortVertices()
+    --Calculate angle to centre for each vertex
+    for i,v in ipairs(self.vertices) do
+        v.angle = math.atan2(self.centre.y-v.pos.y, self.centre.x-v.pos.x)
+    end
+    --Function to sort vertices by angle
+    function byAngle (a,b)
+        if a.angle == b.angle then
+            --Vertices are on the same line. return the closest vertices
+            return a.pos:len() < b.pos:len()
+        else
+            return a.angle < b.angle
         end
     end
+    table.sort(self.vertices,byAngle)
 
-    if self.complete then
-        self:finish()
+
+    for i,v in ipairs(self.vertices) do
+        --print (i.." -".." X: "..v.pos.x.." Y: "..v.pos.y.." A: "..v.angle)
     end
-
-
+    --print("\n")
 
 end
 
@@ -37,57 +72,46 @@ function Shape:finish()
     self:buildTriangles()
 end
 
-function Shape:removeLastVertex()
-    local vn = table.getn(self.vertices)
-    if vn > 2 then
-        table.remove(self.vertices,vn)
-        table.remove(self.vertices,vn-1)
-        self.vertexCount=self.vertexCount-1
-        return true
-    else
-        return false
-    end
-end
-
 function Shape:buildTriangles()
-    if self.vertexCount > 2 then
-        self.triangles = lmath.triangulate(self.vertices)
-        return true
-    else
-        return false
+    local rawvert = {}
+    if table.getn(self.vertices) >= 3 then
+        for i,v in ipairs(self.vertices) do
+            table.insert(rawvert,v.pos.x)
+            table.insert(rawvert,v.pos.y)
+        end
+        self.triangles = lmath.triangulate(rawvert)
     end
+
 end
 
 
+
+function Shape:removeLastVertex()
+end
 
 function Shape:draw()
-    love.graphics.setLineJoin('bevel')
-    local mx,my = mouse.getX(),mouse.getY()
-    love.graphics.setColor(255,255,255,255)
-    local r,g,b,a = graphics.getColor()
+    --mousecoords
+    local mx,my = love.mouse.getX(), love.mouse.getY()
+    --Draw bounds
+    love.graphics.setColor(0,150,50,255)
+    love.graphics.rectangle('line',self.bounds.pos.x,self.bounds.pos.y,self.bounds.size.x,self.bounds.size.y)
+    --Draw Polys
+    local counter = 0
+    for i,v in ipairs(self.triangles) do
+        love.graphics.setColor(255,255,255,255)
+        love.graphics.polygon('fill',v)
+        love.graphics.setColor(200,0,0,255)
+        love.graphics.polygon('line',v)
+        counter=counter+1
+    end
+    --Draw centre
+    --love.graphics.setColor(0,150,50,255)
+    --love.graphics.circle('fill',self.centre.x,self.centre.y,3)
 
-    if self.vertexCount >= 2 then
-        --2 or more vertices ALREADY PLACED. Resulting mouseclick will create at least a triangle with the mouse preview
-        if self.complete then
-            --We're not drawing the mouse preview if it's complete already.
-            for i=1,table.getn(self.triangles) do
-                graphics.setColor(r,g,b,a-15)
-                graphics.polygon('fill',self.triangles[i])
-                love.graphics.setColor(200,0,0,255)
-                graphics.polygon('line',self.triangles[i])
-            end
-        else
-            local prev = {unpack(self.vertices)}
-            table.insert(prev,mx)
-            table.insert(prev,my)
-            graphics.polygon('fill',prev)
-            love.graphics.setColor(200,0,0,255)
-            graphics.polygon('line',prev)
-
-        end
-    else
-        if self.vertexCount < 2 then
-                graphics.line(mx,my,unpack(self.vertices))
-        end
+    local vcount = table.getn(self.vertices)
+    if vcount == 1 then
+        love.graphics.setColor(255,255,255,255)
+        love.graphics.setLineJoin('bevel')
+        love.graphics.line(mx,my,self.vertices[1].pos:unpack())
     end
 end

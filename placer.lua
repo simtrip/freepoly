@@ -5,6 +5,7 @@ function Placer:initialize()
     self.shapes = {}
     self.curIndex = 0
     self.drawing = false
+    self:startDrawing()
 end
 
 function Placer:startDrawing()
@@ -15,24 +16,20 @@ function Placer:startDrawing()
 end
 
 function Placer:mousepressed(mx,my,btn)
-    if btn == 'l' then
-        if self.drawing then
-            self.shapes[self.curIndex]:addVertex(mx,my)
-            if self.shapes[self.curIndex].complete then
-                self:stopDrawing()
-            end
-        else
+    if btn=='l' then
+        if not self.drawing then
             self:startDrawing()
-            self.shapes[self.curIndex]:addVertex(mx,my)
         end
+        self.shapes[self.curIndex]:addVertex(mx,my)
     end
 
-    if btn == 'r' then
+    if btn=='r' then
         if self.drawing then
-            self.shapes[self.curIndex]:finish()
+            self:stopDrawing()
         end
     end
 end
+
 
 function Placer:stopDrawing()
     self.drawing = false
