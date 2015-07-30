@@ -20,6 +20,17 @@ function Shape:addVertex(vx,vy)
     self:build()
 end
 
+function Shape:deleteVertexByIndex(index)
+	--Get index relative to free vertex list
+	fIndex = index - (table.getn(self.vertices) - table.getn(self.freeVertices))
+	--If it's less than 1 it's not in the list
+	if fIndex > 0 then
+		table.remove(self.freeVertices,fIndex)
+	end
+	
+	table.remove(self.vertices,index)
+end
+
 function Shape:build()
     self:calculateCentre()
     self:removeRedundantVertices()
