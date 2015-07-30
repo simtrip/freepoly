@@ -10,6 +10,7 @@ function Shape:initialize()
     self.bounds = {pos=vector(0,0),size=vector(0,0)}
     self.vertexCount = 0
     self.triangles = {}
+	self.freeVertices = {}
     self.complete = false
 end
 
@@ -95,11 +96,17 @@ function Shape:buildTriangles()
             table.insert(rawvert,v.pos.y)
         end
 
-        errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
+        local errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
 
 		--No errors, polygon is valid and tessellated
 		if errorStatus then
 			self.triangles = value
+			--No free vertices!
+			self.freeVertices = {}
+		
+		--Not a valid polygon, the latest vertex will not be connected
+		else
+			table.insert(self.freeVertices,self.vertices[table.getn(self.vertices)])
 		end
     end
 end
@@ -133,6 +140,12 @@ function Shape:draw()
         love.graphics.print(i,v.pos.x,v.pos.y)
     end
 
+	--Draw free vertices
+    for i,v in ipairs(self.freeVertices) do
+        love.graphics.setColor(255,255,0,255)
+        love.graphics.circle('fill',v.pos.x,v.pos.y,4)
+    end
+	
     --Draw centre
     love.graphics.setColor(0,150,50,255)
     love.graphics.circle('fill',self.centre.x,self.centre.y,3)
