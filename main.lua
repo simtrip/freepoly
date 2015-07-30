@@ -1,7 +1,9 @@
+camera = require('lib.camera')
 vector = require('lib.vector')
 class = require('lib.middleclass')
 utility = require('lib.utility')
 imgMan = require ('lib.image_manager')
+
 require('placer')
 
 local placer = Placer:new()
@@ -13,6 +15,7 @@ function love.load(arg)
 end
 
 function love.update(dt)
+    placer:update(dt)
 end
 
 function love.draw()
