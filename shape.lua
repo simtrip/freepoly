@@ -65,6 +65,10 @@ function Shape:sortVertices()
     table.sort(self.vertices,byAngle)
 end
 
+--mmmmm ghetto
+function Shape:sortVertices()
+end
+
 function Shape:removeRedundantVertices()
     --Assumes sorted vertices
     local deletion = {}
@@ -102,13 +106,21 @@ function Shape:finish()
 end
 
 function Shape:buildTriangles()
+    --clear triangles, fuck em all
+    for i,v in ipairs(self.triangles) do
+        v = nil
+    end
+
     local rawvert = {}
     if table.getn(self.vertices) >= 3 then
         for i,v in ipairs(self.vertices) do
             table.insert(rawvert,v.pos.x)
             table.insert(rawvert,v.pos.y)
         end
-        self.triangles = lmath.triangulate(rawvert)
+        result,tempTriangles = pcall(function() return lmath.triangulate(rawvert); end)
+		if result then
+			self.triangles = tempTriangles
+		end
     end
 end
 
