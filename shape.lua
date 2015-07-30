@@ -21,7 +21,6 @@ end
 
 function Shape:build()
     self:calculateCentre()
-    self:sortVertices()
     self:removeRedundantVertices()
     self:buildTriangles()
 end
@@ -45,28 +44,6 @@ function Shape:calculateCentre(vertices)
     self.centre = vector(cx,cy)
     self.bounds.pos = vector(lx,ly)
     self.bounds.size = vector(hx-lx,hy-ly)
-end
-
-
-function Shape:sortVertices()
-    --Calculate angle to centre for each vertex
-    for i,v in ipairs(self.vertices) do
-        v.angle = math.atan2(self.centre.y-v.pos.y, self.centre.x-v.pos.x)
-    end
-    --Function to sort vertices by angle
-    function byAngle (a,b)
-        if a.angle == b.angle then
-            --Vertices are on the same line. return the closest vertices
-            return a.pos:len() < b.pos:len()
-        else
-            return a.angle < b.angle
-        end
-    end
-    table.sort(self.vertices,byAngle)
-end
-
---mmmmm ghetto
-function Shape:sortVertices()
 end
 
 function Shape:removeRedundantVertices()
@@ -117,9 +94,12 @@ function Shape:buildTriangles()
             table.insert(rawvert,v.pos.x)
             table.insert(rawvert,v.pos.y)
         end
-        result,tempTriangles = pcall(function() return lmath.triangulate(rawvert); end)
-		if result then
-			self.triangles = tempTriangles
+		
+        errorStatus,value = pcall(function() return lmath.triangulate(rawvert); end)
+		
+		--No errors, polygon is valid and tessellated
+		if errorStatus then
+			self.triangles = value
 		end
     end
 end
