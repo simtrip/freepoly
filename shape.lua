@@ -77,8 +77,6 @@ function Shape:removeRedundantVertices()
 		--wouldn't be in the list yet - self.build() is called after this function
 		i = v - (table.getn(self.vertices) - table.getn(self.freeVertices) - 1)
 		--If it's less than 1 it's not in the list
-		print(v)
-		print(i)
 		if i > 0 then
 			table.remove(self.freeVertices,i)
 		end
