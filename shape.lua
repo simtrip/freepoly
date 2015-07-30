@@ -94,9 +94,9 @@ function Shape:buildTriangles()
             table.insert(rawvert,v.pos.x)
             table.insert(rawvert,v.pos.y)
         end
-		
+
         errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
-		
+
 		--No errors, polygon is valid and tessellated
 		if errorStatus then
 			self.triangles = value
