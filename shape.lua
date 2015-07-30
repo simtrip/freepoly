@@ -134,17 +134,35 @@ function Shape:draw()
     end
 
     --Draw all vertices
+	love.graphics.setColor(200,0,0,255)
     for i,v in ipairs(self.vertices) do
-        love.graphics.setColor(200,0,0,255)
         love.graphics.circle('fill',v.pos.x,v.pos.y,4)
         love.graphics.print(i,v.pos.x,v.pos.y)
     end
 
 	--Draw free vertices
+	love.graphics.setColor(255,255,0,255)
     for i,v in ipairs(self.freeVertices) do
-        love.graphics.setColor(255,255,0,255)
         love.graphics.circle('fill',v.pos.x,v.pos.y,4)
     end
+	
+	print(table.getn(self.vertices))
+	--Draw connecting lines for free vertices
+	local numFreeVertices = table.getn(self.freeVertices)
+	if numFreeVertices > 0 then
+		love.graphics.setColor(255,255,255,255)
+		for i=1,numFreeVertices,1 do
+			local p1,p2 = self.freeVertices[i],nil
+		
+			--Connect the first free vertex to the last non-free one
+			if i == 1 then
+				p2 = self.vertices[table.getn(self.vertices) - table.getn(self.freeVertices)]
+			else
+				p2 = self.freeVertices[i-1]
+			end
+			love.graphics.line(p1.pos.x,p1.pos.y, p2.pos.x,p2.pos.y)
+		end
+	end
 	
     --Draw centre
     love.graphics.setColor(0,150,50,255)
