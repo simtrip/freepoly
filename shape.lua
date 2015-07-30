@@ -55,7 +55,6 @@ function Shape:removeRedundantVertices()
         local next1 = self.vertices[i+1] or self.vertices[i+1-table.getn(self.vertices)]
         local next2 = self.vertices[i+2] or self.vertices[i+2-table.getn(self.vertices)]
 
-
         if next1 then
             if next1.pos.x == v.x and next1.pos.y == v.y then
                 table.insert(deletion,i+1)
@@ -74,7 +73,18 @@ function Shape:removeRedundantVertices()
     end
 
     for i,v in ipairs(deletion) do
-        table.remove(self.vertices,v)
+        --Get index relative to free vertex list, -1 because a new free vertex
+		--wouldn't be in the list yet - self.build() is called after this function
+		i = v - (table.getn(self.vertices) - table.getn(self.freeVertices) - 1)
+		--If it's less than 1 it's not in the list
+		print(v)
+		print(i)
+		if i > 0 then
+			table.remove(self.freeVertices,i)
+		end
+		
+		table.remove(self.vertices,v)
+		
     end
 end
 
@@ -97,7 +107,8 @@ function Shape:buildTriangles()
         end
 
         local errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
-
+		
+		--Assumes this is only called once each time a vertex is added
 		--No errors, polygon is valid and tessellated
 		if errorStatus then
 			self.triangles = value
@@ -146,7 +157,6 @@ function Shape:draw()
         love.graphics.circle('fill',v.pos.x,v.pos.y,4)
     end
 	
-	print(table.getn(self.vertices))
 	--Draw connecting lines for free vertices
 	local numFreeVertices = table.getn(self.freeVertices)
 	if numFreeVertices > 0 then
