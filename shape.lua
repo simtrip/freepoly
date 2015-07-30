@@ -95,7 +95,7 @@ function Shape:buildTriangles()
             table.insert(rawvert,v.pos.y)
         end
 		
-        errorStatus,value = pcall(function() return lmath.triangulate(rawvert); end)
+        errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
 		
 		--No errors, polygon is valid and tessellated
 		if errorStatus then
@@ -104,16 +104,11 @@ function Shape:buildTriangles()
     end
 end
 
-
 function Shape:join(joinShape)
     for i,v in joinShape.vertices do
         table.insert(self.vertices,v)
     end
     self:build()
-end
-
-
-function Shape:removeLastVertex()
 end
 
 function Shape:draw()
