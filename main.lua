@@ -4,6 +4,9 @@ class = require('lib.middleclass')
 utility = require('lib.utility')
 imgMan = require ('lib.image_manager')
 
+local vMajor, vMinor = love.getVersion()
+assert(vMinor >= 9, "love2d version too old, 0.9 or higher required")
+
 require('placer')
 
 local placer = Placer:new()
