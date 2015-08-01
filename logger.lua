@@ -19,7 +19,7 @@ local function log(message, level)
 	elseif level == 2 then strErrLevel = "WARN"
 	elseif level == 1 then strErrLevel = "ERROR"
 	else
-		Logger.log("Invalid log level (" .. level .. ") of following message, setting to DEBUG level", Logger.WARNING)
+		log("Invalid log level (" .. level .. ") of following message, setting to DEBUG level", Logger.WARNING)
 		level = Logger.DEBUG
 		strErrLevel = "DEBUG"
 	end
