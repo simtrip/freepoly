@@ -4,7 +4,12 @@ class = require('lib.middleclass')
 utility = require('lib.utility')
 imgMan = require ('lib.image_manager')
 
-local vMajor, vMinor = love.getVersion()
+local l = require('logger')
+--Set log level here (debug) till we have a more elegant way
+l.level = 4
+
+local vMajor, vMinor, revision, name = love.getVersion()
+l.log(string.format("Running love2d version %d.%d.%d - %s", vMajor, vMinor, revision, name), l.INFO)
 assert(vMinor >= 9, "love2d version too old, 0.9 or higher required")
 
 require('placer')
