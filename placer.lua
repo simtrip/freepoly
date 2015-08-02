@@ -1,32 +1,32 @@
 Placer = class('Placer')
-require ('Shape')
 
-function Placer:initialize()
-    self.size = vector(1260,600) -- The size of the placer's viewport
-    self.pos = vector(10,10) --The position to display the placer
-    self.gridsize = 32
+function Placer:initialize(editor,x,y)
+
+    --Handle args
+    self.settings = editor.settings
+    self.shapes = editor.shapes
+    self.pos = vector(x,y) --The position to display the placer
+
+    --Class specific variables
+    self.size = vector(800,600) -- The size of the placer's viewport
     self.canvas = love.graphics.newCanvas(self.size.x,self.size.y)
     self.camera = camera(0,0)
-    self.shapes = {}
-    self.curIndex = 0
     self.drawing = false
     self:startDrawing()
 end
 
 function Placer:snapToGrid(wx,wy)
-    gx = utility.round(wx / self.gridsize,0) * self.gridsize
-    gy = utility.round(wy / self.gridsize,0) * self.gridsize
+    gx = utility.round(wx / self.settings.gridSize,0) * self.settings.gridSize
+    gy = utility.round(wy / self.settings.gridSize,0) * self.settings.gridSize
     return gx,gy
 end
+
 
 function Placer:startDrawing()
     local s = Shape:new()
     table.insert(self.shapes,s)
     self.drawing = true
-    self.curIndex = self.curIndex+1
-end
-
-function Placer:setMode()
+    self.curIndex = self.settings.selectedShape+1
 end
 
 function Placer:mousepressed(mx,my,btn)
@@ -39,7 +39,7 @@ function Placer:mousepressed(mx,my,btn)
                 self:startDrawing()
             end
 
-            self.shapes[self.curIndex]:addVertex(self:snapToGrid(mx,my))
+            self.shapes[self.settings.selectedShape]:addVertex(self:snapToGrid(mx,my))
         end
 
         if btn=='r' then
