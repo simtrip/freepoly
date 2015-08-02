@@ -15,7 +15,7 @@ local ansiFormatting = true
 local function aFormat(str, ...)
 	--Formats str with ANSI escape sequences
 
-	if not ansiFormatting or table.getn({...}) = 0 then return str end
+	if not ansiFormatting or table.getn({...}) == 0 then return str end
 
 	local formatting = ""
 	for i,v in ipairs({...}) do
