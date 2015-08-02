@@ -3,6 +3,8 @@ local lmath = love.math
 local graphics = love.graphics
 local mouse = love.mouse
 
+l = require('logger')
+
 function Shape:initialize()
     self.vertices = {}
     self.angles = {}
@@ -69,7 +71,7 @@ function Shape:removeRedundantVertices()
         if next1 then
             if next1.pos.x == v.x and next1.pos.y == v.y then
                 table.insert(deletion,i+1)
-                print("duplicate vertex")
+                l.log("Duplicate vertex at " .. v.x .. "x" .. v.y .. ", removing", l.DEBUG)
             end
         end
 
@@ -78,7 +80,7 @@ function Shape:removeRedundantVertices()
             local angleN2 = math.atan2(v.pos.y-next2.pos.y,v.pos.x-next2.pos.x)
             if angleN1 == angleN2 then
                 table.insert(deletion,i+1)
-                print("adjacent angle")
+                l.log("Adjacent angled vertex at " .. next1.pos.x .. "x" .. next1.pos.y .. ", removing", l.DEBUG)
             end
         end
     end
