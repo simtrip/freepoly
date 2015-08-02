@@ -26,7 +26,7 @@ end
 --Gets & Sets
 function editor:getSelectedShape()
     local s = self.shapes[self.settings.selectedShape]
-    if s then return s else l.log("There is no selection!",4) end
+    if s ~= nil then return s else l.log("There is no selection!",4) end
 end
 
 function editor:selectShapeByIndex(index)
@@ -65,22 +65,23 @@ function editor:deleteShapeAt(x,y)
 end
 
 function editor:addVertexAt(x,y)
-    self:getSelectedShape():addVertex(x,y)
+    if self:getSelectedShape() then self:getSelectedShape():addVertex(x,y) end
 end
 
 function editor:deleteVertexAt(x,y)
     --Searches vertices of selected shape to attempt a removal at specified coords
     local shape = self:getSelectedShape()
     local found = false
-
-    for i,v in ipairs(shape.vertices) do
-        if v.pos.x == x and v.pos.y == y then
-            found = true
-            shape:deleteVertexByIndex(i)
-            break
+    if shape then
+        for i,v in ipairs(shape.vertices) do
+            if v.pos.x == x and v.pos.y == y then
+                found = true
+                shape:deleteVertexByIndex(i)
+                break
+            end
         end
+        if not found then l.log("Vertex at: "..x..", "..y.." not found!",2) end
     end
-    if not found then l.log("Removal: Vertex at: "..x..", "..y.." not found!",2) end
 end
 
 ---CALLBACKS

@@ -73,14 +73,12 @@ function Placer:draw()
 
 
     for i,v in ipairs(editor.shapes) do
-        if i == editor.settings.selectedShape then
-            love.graphics.setColorMask(false,true,true,true)
-        else
-            love.graphics.setColorMask(true,true,true,true)
-        end
         v:draw()
+        if i == editor.settings.selectedShape then
+            love.graphics.setColor(50,255,50,50)
+            love.graphics.rectangle('fill',v.bounds.pos.x,v.bounds.pos.y,v.bounds.size.x,v.bounds.size.y)
+        end
     end
-    love.graphics.setColorMask(true,true,true,true)
 
     --Draw grid-snapped cursor
     love.graphics.circle('fill',mgx,mgy,2)

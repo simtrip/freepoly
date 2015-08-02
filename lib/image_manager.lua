@@ -8,12 +8,10 @@ function image_manager:initialize()
 end
 
 function image_manager:load(filename)
-	if not self.images[filename] then 
+	if not self.images[filename] then
 		self.images[filename] = love.graphics.newImage(imagepath..filename..imageformat)
 		self.images[filename]:setFilter('nearest','nearest')
 	end
-	
-
 	return self.images[filename]
 end
 
