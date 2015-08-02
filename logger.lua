@@ -15,7 +15,7 @@ local ansiFormatting = true
 local function aFormat(str, ...)
 	--Formats str with ANSI escape sequences
 
-	if not ansiFormatting then return str end
+	if not ansiFormatting or table.getn({...}) = 0 then return str end
 
 	local formatting = ""
 	for i,v in ipairs({...}) do
@@ -24,6 +24,7 @@ local function aFormat(str, ...)
 	return '\27' .. formatting .. str .. "\27[0m" --Reset to default
 end
 
+
 local function log(message, level)
 	if level > Logger.level then return end
 	
@@ -31,7 +32,7 @@ local function log(message, level)
 	
 	if level == 4 then strErrLevel = aFormat("DEBUG", 32)
 	elseif level == 3 then strErrLevel = "INFO"
-	elseif level == 2 then strErrLevel = aFormat("WARN", 33)
+	elseif level == 2 then strErrLevel = aFormat("WARNING", 33)
 	elseif level == 1 then strErrLevel = aFormat("ERROR", 31)
 	else
 		log("Invalid log level (" .. level .. ") of following message, setting to DEBUG level", Logger.WARNING)
@@ -54,6 +55,7 @@ local function log(message, level)
 	
 	print(prefix .. " " .. message)
 end
+
 
 if love._os == "Windows" then
 	ansiFormatting = false
