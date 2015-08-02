@@ -1,51 +1,51 @@
 Placer = class('Placer')
+local editor = editor
+ -- this line is OK as long as Editor requires Placer.
 
-function Placer:initialize(editor,x,y)
 
-    --Handle args
-    self.settings = editor.settings
-    self.shapes = editor.shapes
+function Placer:initialize(x,y)
     self.pos = vector(x,y) --The position to display the placer
 
     --Class specific variables
-    self.size = vector(800,600) -- The size of the placer's viewport
+    self.size = vector(1240,600) -- The size of the placer's viewport
     self.canvas = love.graphics.newCanvas(self.size.x,self.size.y)
     self.camera = camera(0,0)
     self.drawing = false
-    self:startDrawing()
 end
 
 function Placer:snapToGrid(wx,wy)
-    gx = utility.round(wx / self.settings.gridSize,0) * self.settings.gridSize
-    gy = utility.round(wy / self.settings.gridSize,0) * self.settings.gridSize
+    gx = utility.round(wx / editor.settings.gridSize,0) * editor.settings.gridSize
+    gy = utility.round(wy / editor.settings.gridSize,0) * editor.settings.gridSize
     return gx,gy
 end
 
-
-function Placer:startDrawing()
-    local s = Shape:new()
-    table.insert(self.shapes,s)
-    self.drawing = true
-    self.curIndex = self.settings.selectedShape+1
-end
-
 function Placer:mousepressed(mx,my,btn)
-    --check for click within canvas area
-    if utility.point2Box(mx,my,self.pos.x,self.pos.y,self.size.x,self.size.y)
-    then
-        mx,my = self.camera:worldCoords(mx,my)
-        if btn=='l' then
-            if not self.drawing then
-                self:startDrawing()
-            end
+    if utility.point2Box(mx,my,self.pos.x,self.pos.y,self.size.x,self.size.y) then
+        wx,wy = self.camera:worldCoords(mx,my)
+        gx,gy = self:snapToGrid(wx,wy)
 
-            self.shapes[self.settings.selectedShape]:addVertex(self:snapToGrid(mx,my))
+        --HAHA MAGIC NUMBERS! YOU LOVE IT CHEESE
+        if editor.settings.drawMode == 1 then
+            --select
+            editor:selectShapeAt(gx,gy)
         end
-
-        if btn=='r' then
-            if self.drawing then
-                self:stopDrawing()
-            end
+        if editor.settings.drawMode == 2 then
+            --new shape
+            editor:newShape(true)
+            editor:addVertexAt(gx,gy)
+            editor.settings.drawMode = 4
+        end
+        if editor.settings.drawMode == 3 then
+            --delete shape
+            editor:deleteShapeAt(gx,gy)
+        end
+        if editor.settings.drawMode == 4 then
+            --add vertex
+            editor:addVertexAt(gx,gy)
+        end
+        if editor.settings.drawMode == 5 then
+            --delete vertex
+            editor:deleteVertexAt(gx,gy)
         end
     end
 end
@@ -59,10 +59,6 @@ function Placer:update(dt)
     if love.keyboard.isDown('d') then self.camera:move(cameraSpeed*dt,0) end
 end
 
-function Placer:stopDrawing()
-    self.drawing = false
-end
-
 function Placer:draw()
     local mx,my = love.mouse.getX(),love.mouse.getY()
     local mgx,mgy = self:snapToGrid(self.camera:worldCoords(mx,my))
@@ -74,10 +70,17 @@ function Placer:draw()
     --Draw grid
 
     --Draw shapes
-    for i=1,table.getn(self.shapes) do
-        self.shapes[i]:draw()
+
+
+    for i,v in ipairs(editor.shapes) do
+        v:draw()
+        if i == editor.settings.selectedShape then
+            love.graphics.setColor(50,255,50,50)
+            love.graphics.rectangle('fill',v.bounds.pos.x,v.bounds.pos.y,v.bounds.size.x,v.bounds.size.y)
+        end
     end
-    --SELECTED
+
+    --Draw grid-snapped cursor
     love.graphics.circle('fill',mgx,mgy,2)
 
     --UNSET CANVAS

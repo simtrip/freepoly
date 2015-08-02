@@ -3,7 +3,7 @@ local lmath = love.math
 local graphics = love.graphics
 local mouse = love.mouse
 
-l = require('logger')
+local l = require('logger')
 
 function Shape:initialize()
     self.vertices = {}
@@ -14,6 +14,7 @@ function Shape:initialize()
     self.triangles = {}
 	self.freeVertices = {}
     self.complete = false
+
 end
 
 function Shape:addVertex(vx,vy)
@@ -29,8 +30,8 @@ function Shape:deleteVertexByIndex(index)
 	if fIndex > 0 then
 		table.remove(self.freeVertices,fIndex)
 	end
-	
 	table.remove(self.vertices,index)
+    self:build()
 end
 
 function Shape:build()
@@ -93,9 +94,9 @@ function Shape:removeRedundantVertices()
 		if i > 0 then
 			table.remove(self.freeVertices,i)
 		end
-		
+
 		table.remove(self.vertices,v)
-		
+
     end
 end
 
@@ -118,14 +119,14 @@ function Shape:buildTriangles()
         end
 
         local errorStatus,value = pcall(function() return lmath.triangulate(rawvert) end)
-		
+
 		--Assumes this is only called once each time a vertex is added
 		--No errors, polygon is valid and tessellated
 		if errorStatus then
 			self.triangles = value
 			--No free vertices!
 			self.freeVertices = {}
-		
+
 		--Not a valid polygon, the latest vertex will not be connected
 		else
 			table.insert(self.freeVertices,self.vertices[table.getn(self.vertices)])
@@ -142,8 +143,8 @@ end
 
 function Shape:draw()
     --Draw bounds
-    love.graphics.setColor(0,150,50,255)
-    love.graphics.rectangle('line',self.bounds.pos.x,self.bounds.pos.y,self.bounds.size.x,self.bounds.size.y)
+    --love.graphics.setColor(0,150,50,255)
+    --love.graphics.rectangle('line',self.bounds.pos.x,self.bounds.pos.y,self.bounds.size.x,self.bounds.size.y)
     --Draw Polys
     local counter = 0
     for i,v in ipairs(self.triangles) do
@@ -167,14 +168,14 @@ function Shape:draw()
     for i,v in ipairs(self.freeVertices) do
         love.graphics.circle('fill',v.pos.x,v.pos.y,4)
     end
-	
+
 	--Draw connecting lines for free vertices
 	local numFreeVertices = table.getn(self.freeVertices)
 	if numFreeVertices > 0 then
 		love.graphics.setColor(255,255,255,255)
 		for i=1,numFreeVertices,1 do
 			local p1,p2 = self.freeVertices[i],nil
-		
+
 			--Connect the first free vertex to the last non-free one
 			if i == 1 then
 				p2 = self.vertices[table.getn(self.vertices) - table.getn(self.freeVertices)]
@@ -184,7 +185,7 @@ function Shape:draw()
 			love.graphics.line(p1.pos.x,p1.pos.y, p2.pos.x,p2.pos.y)
 		end
 	end
-	
+
     --Draw centre
     love.graphics.setColor(0,150,50,255)
     love.graphics.circle('fill',self.centre.x,self.centre.y,3)
