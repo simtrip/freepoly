@@ -9,7 +9,7 @@ local l = require('logger')
 l.level = 4
 
 local vMajor, vMinor, revision, name = love.getVersion()
-l.log(string.format("Running love2d version %d.%d.%d - %s", vMajor, vMinor, revision, name), l.INFO)
+l.log(string.format("Running love2d version %d.%d.%d - %s on %s", vMajor, vMinor, revision, name, love._os), l.INFO)
 assert(vMinor >= 9, "love2d version too old, 0.9 or higher required")
 
 require('placer')
