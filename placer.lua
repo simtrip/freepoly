@@ -1,5 +1,5 @@
 Placer = class('Placer')
-require ('Shape')
+require ('shape')
 
 function Placer:initialize()
     self.size = vector(1260,600) -- The size of the placer's viewport
