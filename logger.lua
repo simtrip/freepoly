@@ -36,7 +36,7 @@ local function log(message, level)
 	else
 		log("Invalid log level (" .. level .. ") of following message, setting to DEBUG level", Logger.WARNING)
 		level = Logger.DEBUG
-		strErrLevel = "DEBUG"
+		strErrLevel = aFormat("DEBUG", 32)
 	end
 	
 	local timeStamp = aFormat(os.date("%M:%S", os.time()), 2)
